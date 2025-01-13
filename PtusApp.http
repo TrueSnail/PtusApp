@@ -1,0 +1,6 @@
+@PtusApp_HostAddress = http://localhost:5201
+
+GET {{PtusApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
