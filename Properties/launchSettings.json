@@ -8,6 +8,6 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5201",
-      "launchUrl": "scalar/v1"
+      "launchUrl": "scalar/PtusService"
     }
 }
