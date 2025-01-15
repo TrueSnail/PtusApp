@@ -6,19 +6,33 @@ namespace PtusService.Controllers
     [ApiController]
     public class CcpController : ControllerBase
     {
-        static public Dictionary<string, float> SocialPoints = new();
+        static private Dictionary<string, int> SocialPointsCollection = new();
 
-        [HttpGet(Name = nameof(GetSocialPoints))]
-        public Dictionary<string, float> GetSocialPoints()
+        private ILLMProvider Provider;
+
+        public CcpController(ILLMProvider provider)
         {
-            return SocialPoints;
+            Provider = provider;
         }
 
         [HttpPost(Name = nameof(SendMessage))]
-        public float SendMessage(string username, string text)
+        public async Task<int> SendMessage(string username, string text)
         {
-            SocialPoints[username] = 5;
-            return 5;
+            string response = await Provider.SendPrompt(GetPrompt(text));
+
+            if (!int.TryParse(response, out int socialPoints)) socialPoints = 0;
+
+            if (SocialPointsCollection.ContainsKey(username)) SocialPointsCollection[username] += socialPoints;
+            else SocialPointsCollection[username] = socialPoints;
+
+            SocialPointsCollection = SocialPointsCollection.OrderBy(kv => kv.Value).ToDictionary();
+
+            return socialPoints;
         }
+
+        [HttpGet(Name = nameof(GetSocialPoints))]
+        public Dictionary<string, int> GetSocialPoints() => SocialPointsCollection;
+
+        private string GetPrompt(string message) => $"Jako osoba dowodząca komunistyczną partią w chinach, napisz ile powinna otrzymać osoba social creditów na podstawie poniższej wiadomości:\r\n\"{message}\"\r\nTwoja odpowiedź powinna zawierać jedynie dodatnią lub ujemną liczbę całkowitą";
     }
 }
